@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href="https://vjs.zencdn.net/8.16.1/video-js.css" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinikk TV - Media</title>
+</head>
+<body>
+  <h1>Clinikk TV - Media Management</h1>
+
+  <!-- Login Form -->
+  <h2>Login</h2>
+  <form id="loginForm">
+    <label for="email">Email:</label>
+    <input type="email" id="email" required>
+    <br><br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" required>
+    <br><br>
+    <button type="submit">Login</button>
+  </form>
+
+  <p id="loginError" style="color:red;"></p>
+
+  <!-- Media List -->
+  <h2>All Media</h2>
+  <div id="mediaList">
+    <!-- Media items will be displayed here -->
+  </div>
+
+  <script src="https://vjs.zencdn.net/8.16.1/video.min.js"></script>
+
+  <script>
+    // Function to handle login and store token
+    async function loginUser(event) {
+      event.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      const response = await fetch('http://localhost:3000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store token in localStorage
+        localStorage.setItem('token', data.token);
+        document.getElementById('loginError').textContent = '';
+        fetchMedia(); // Load media after successful login
+      } else {
+        document.getElementById('loginError').textContent = data.error;
+      }
+    }
+
+    // Function to get media from API
+    async function fetchMedia() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Please log in to view media.');
+        return;
+      }
+
+      const response = await fetch('http://localhost:3000/api/media/', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`  // Use token from localStorage in the Authorization header
+        }
+      });
+
+      if (!response.ok) {
+        alert('Failed to fetch media');
+        return;
+      }
+
+      const data = await response.json();
+      const mediaListContainer = document.getElementById('mediaList');
+      mediaListContainer.innerHTML = '';  // Clear previous content
+
+      data.forEach((media) => {
+        const mediaElement = document.createElement('div');
+        
+        // Check if the media type is a video and render a video player if so
+        const mediaContent = media.type === 'VIDEO' ? `
+          <h3>${media.title}</h3>
+          <p>${media.description}</p>
+          <p>Type: ${media.type}</p>
+          <p>Duration: ${media.duration} seconds</p>
+          <video width="320" height="240" controls>
+            <source src="${media.url}"  type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          <hr>
+        ` : `
+          <h3>${media.title}</h3>
+          <p>${media.description}</p>
+          <p>Type: ${media.type}</p>
+          <p>Duration: ${media.duration} seconds</p>
+          <p>URL: <a href="${media.url}" target="_blank">${media.url}</a></p>
+          <img src="${media.thumbnail}" alt="${media.title}" width="200">
+          <hr>
+        `;
+        
+        mediaElement.innerHTML = mediaContent;
+        mediaListContainer.appendChild(mediaElement);
+      });
+    }
+
+    // Attach login form submit handler
+    document.getElementById('loginForm').addEventListener('submit', loginUser);
+  </script>
+</body>
+</html>
