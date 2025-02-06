@@ -114,6 +114,6 @@ Below is the high-level architecture diagram for Clinikk TV:
 ![image](https://github.com/user-attachments/assets/20d8fd5c-cfa7-4385-b89c-78f2a169180a)
 
 
-### Author: [Your Name]
+### Author: Jasmeet Singh
 
 For support, contact: **singhjasmeet200526@gmail.com**
