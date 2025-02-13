@@ -11,7 +11,7 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: "http://127.0.0.1:5500", // Allow frontend domain
+    origin: true, // Allow frontend domain
     credentials: true, // Allow cookies
   })
 );
@@ -19,6 +19,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Routes
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
 app.use("/api/auth", authRoutes);
 app.use("/api/media", mediaRoutes);
 
@@ -33,5 +36,5 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Internal Server Error" });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

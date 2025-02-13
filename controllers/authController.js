@@ -48,7 +48,6 @@ export const register = async (req, res) => {
       message: "Login successful",
       user,
       token,
-      e,
     });
   } catch (error) {
     res.status(400).json({ error: error.message });
